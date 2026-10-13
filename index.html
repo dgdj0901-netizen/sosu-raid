@@ -187,11 +187,11 @@ body.tv .arena{grid-template-columns:330px minmax(0,1fr)}
 .namebox input.bad{border-color:var(--no);animation:shake .3s}
 .msg{margin:0 0 14px;font-size:15px;min-height:1.4em}
 .msg.no{color:var(--no)} .msg.ok{color:var(--ok)}
-.modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px;border:0;padding:0}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 18px;border:0;padding:0}
 @media (max-width:640px){.modes{grid-template-columns:minmax(0,1fr)}}
 .mode{position:relative;display:flex;flex-direction:column;gap:3px;border:2px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;background:var(--bg-2)}
 .mode input{position:absolute;opacity:0;pointer-events:none}
-.mode:nth-of-type(1){--mc:#5fdc9c} .mode:nth-of-type(2){--mc:#59c8ff} .mode:nth-of-type(3){--mc:#ff8a6b}
+.mode:nth-of-type(1){--mc:#5fdc9c} .mode:nth-of-type(2){--mc:#59c8ff} .mode:nth-of-type(3){--mc:#b48cff} .mode:nth-of-type(4){--mc:#ff8a6b}
 .mode:has(input:checked){border-color:var(--mc);background:linear-gradient(180deg,color-mix(in srgb,var(--mc) 18%,var(--bg-2)),var(--bg-2))}
 .mode:has(input:focus-visible){outline:3px solid var(--mc);outline-offset:2px}
 .mode .name{font-family:var(--f-display);font-size:23px;line-height:1.1;color:var(--mc);display:flex;justify-content:space-between;gap:8px;align-items:baseline}
@@ -401,6 +401,10 @@ body.tv .board h2{font-size:34px}
               <span class="name">보통 <span class="atk">공격력 7~11</span></span>
               <span class="desc">소수 두 자리 ÷ 소수 두 자리</span>
               <span class="ex">2.56 ÷ 0.16 = 16</span></label>
+            <label class="mode"><input type="radio" name="mode" value="normal2" id="m-normal2">
+              <span class="name">보통 2 <span class="atk">공격력 8~12</span></span>
+              <span class="desc">소수 두 자리 ÷ 소수 한 자리, 몫은 소수 한 자리</span>
+              <span class="ex">9.24 ÷ 2.1 = 4.4</span></label>
             <label class="mode"><input type="radio" name="mode" value="hard" id="m-hard">
               <span class="name">조금 어려움 <span class="atk">공격력 9~14</span></span>
               <span class="desc">소수 한 자리·두 자리와 자연수가 섞여 나와요</span>
@@ -526,7 +530,7 @@ body.tv .board h2{font-size:34px}
       </div>
 
       <h3 class="tsec">학생 난이도</h3>
-      <label><select id="tLock"><option value="free" selected>학생이 직접 고르기</option><option value="easy">모두 쉬움</option><option value="normal">모두 보통</option><option value="hard">모두 조금 어려움</option></select></label>
+      <label><select id="tLock"><option value="free" selected>학생이 직접 고르기</option><option value="easy">모두 쉬움</option><option value="normal">모두 보통</option><option value="normal2">모두 보통 2</option><option value="hard">모두 조금 어려움</option></select></label>
     </div>
     <p class="msg" id="tMsg"></p>
     <div class="tbtns">
@@ -551,7 +555,7 @@ const firebaseConfig = {
 };
 
 /* ===== 게임 설정 ===== */
-const DMG = { easy:[5,8], normal:[7,11], hard:[9,14] }; // 난이도별 공격력
+const DMG = { easy:[5,8], normal:[7,11], normal2:[8,12], hard:[9,14] }; // 난이도별 공격력
 const CRIT_RATE = 0.10;      // 치명타 확률 (공격력 ×2)
 const STREAK_BONUS = 2;      // 3연속 정답부터 추가 공격력
 const HEAL_ON_WRONG = 10;    // 틀렸을 때 보스 회복량 (Firebase 규칙과 같아야 해요)
@@ -779,7 +783,7 @@ function parse4(raw){
    · 몫은 항상 자연수 */
 function pick1(){ for(;;){ const v=Math.random()<0.85?ri(2,99):ri(101,199); if(v%10!==0) return v; } }  // 0.2 ~ 19.9
 function pick2(){ for(;;){ const v=ri(11,999); if(v%10!==0) return v; } }                            // 0.11 ~ 9.99
-function mkDiv(a,b,q,label,base){ return {a,b,ans4:q*10000,ansText:String(q),label,base}; }
+function mkDiv(a,b,q,label,base,tenth){ return tenth?{a,b,ans4:q*1000,ansText:fmt(q,1),label,base}:{a,b,ans4:q*10000,ansText:String(q),label,base}; }
 function d1d1(base){ for(;;){ const v=pick1(), q=ri(2,30), d=q*v; if(d%10===0||d>999) continue;
   return mkDiv(fmt(d,1),fmt(v,1),q,"소수 한 자리 ÷ 소수 한 자리",base); } }
 function d2d2(base){ for(;;){ const v=pick2(), q=ri(2,30), d=q*v; if(d%10===0||d>999) continue;
@@ -792,6 +796,16 @@ function nd2(base){ for(;;){ const v=pick2(), q=ri(2,40); if((q*v)%100!==0) cont
   return mkDiv(String(n),fmt(v,2),q,"자연수 ÷ 소수 두 자리",base); } }
 function genEasy(){ return d1d1(10); }   // 예: 7.8 ÷ 0.6 = 13
 function genNormal(){ return d2d2(15); } // 예: 2.56 ÷ 0.16 = 16
+function genNormal2(){
+  /* 보통 2: 소수 두 자리 ÷ 소수 한 자리, 몫은 소수 한 자리 (예: 1.36 ÷ 3.4 = 0.4, 9.24 ÷ 2.1 = 4.4)
+     나누어지는 수는 10보다 작게 해서 계산이 너무 길어지지 않게 */
+  for(;;){
+    const v=ri(2,99); if(v%10===0) continue;   // 나누는 수 0.2 ~ 9.9
+    const q=ri(2,99); if(q%10===0) continue;   // 몫 0.2 ~ 9.9 (소수 한 자리)
+    const d=q*v; if(d%10===0||d>999) continue; // 나누어지는 수: 소수 두 자리, 10 미만
+    return mkDiv(fmt(d,2),fmt(v,1),q,"소수 두 자리 ÷ 소수 한 자리",18,true);
+  }
+}
 function genHard(){                      // 여러 종류를 섞어서
   const r=Math.random();
   if(r<0.30) return d1d2(20);            // 예: 2.4 ÷ 0.16 = 15
@@ -800,7 +814,7 @@ function genHard(){                      // 여러 종류를 섞어서
   if(r<0.875) return d1d1(20);
   return d2d2(20);
 }
-const GEN={easy:genEasy,normal:genNormal,hard:genHard};
+const GEN={easy:genEasy,normal:genNormal,normal2:genNormal2,hard:genHard};
 
 /* ================= 보스 그림 ================= */
 let svgN=0;
@@ -863,7 +877,7 @@ const BOSSES=[
 ];
 
 /* ================= 선생님 설정값 ================= */
-const MODE_LABEL={easy:"쉬움",normal:"보통",hard:"조금 어려움"};
+const MODE_LABEL={easy:"쉬움",normal:"보통",normal2:"보통 2",hard:"조금 어려움"};
 const healAmt=()=>S.raid&&Number.isInteger(S.raid.heal)?S.raid.heal:HEAL_ON_WRONG;
 const stunSec=()=>S.raid&&Number.isInteger(S.raid.stun)?S.raid.stun:STUN_SECONDS;
 const lockMode=()=>S.raid&&S.raid.status==="live"&&S.raid.lock&&S.raid.lock!=="free"&&DMG[S.raid.lock]?S.raid.lock:null;
