@@ -129,7 +129,7 @@ h1{word-break:keep-all}
 .feed li.sys{color:#c9a8ff;justify-content:center}
 .stagemsg{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);text-align:center;font-family:var(--f-display);font-size:clamp(22px,4vw,30px);line-height:1.25;color:#e9e2ff;text-shadow:0 2px 0 #000;width:90%;pointer-events:none}
 .stagemsg small{display:block;font-family:var(--f-body);font-size:15px;color:var(--ink-soft);margin-top:6px}
-.banner{position:absolute;left:0;right:0;top:36%;text-align:center;font-family:var(--f-display);font-size:clamp(36px,7vw,64px);color:#fff;text-shadow:0 0 20px var(--boss),0 0 40px var(--boss),0 4px 0 #000;pointer-events:none;z-index:4;animation:bannerIn 2s ease-out forwards}
+.banner{position:absolute;left:0;right:0;top:36%;padding:0 14px;line-height:1.15;word-break:keep-all;text-wrap:balance;text-align:center;font-family:var(--f-display);font-size:clamp(28px,5vw,52px);color:#fff;text-shadow:0 0 20px var(--boss),0 0 40px var(--boss),0 4px 0 #000;pointer-events:none;z-index:4;animation:bannerIn 2s ease-out forwards}
 
 /* ===== 보스 그림 무대 ===== */
 .stage{display:flex;flex-direction:column;min-height:480px;background:#0c0a14}
@@ -172,6 +172,37 @@ body.tv .arena{grid-template-columns:330px minmax(0,1fr)}
 @keyframes artHeal{0%{filter:none}35%{filter:brightness(1.3) saturate(1.5) hue-rotate(35deg) drop-shadow(0 0 0 #6dffa8)}100%{filter:none}}
 @keyframes artAppear{0%{transform:scale(1.25);filter:brightness(3) blur(6px);opacity:0}50%{opacity:1}100%{transform:none;filter:none}}
 @keyframes artDie{0%{filter:brightness(1)}25%{filter:brightness(3) saturate(0)}100%{filter:brightness(.35) grayscale(1) blur(2px);transform:scale(1.05)}}
+
+/* ===== 보스의 반격: 분노 · 부하 ===== */
+.furyfx{position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:radial-gradient(ellipse 80% 70% at 50% 50%,transparent 40%,rgba(255,30,50,.55) 100%);mix-blend-mode:screen}
+.stage.fury .furyfx{opacity:1;animation:furyPulse .9s ease-in-out infinite alternate}
+.stage.fury .art{filter:saturate(1.4) contrast(1.1) hue-rotate(-12deg)}
+.chip.shield{color:#ffe0e0;border-color:#b3313f;background:rgba(120,10,25,.55);font-weight:700}
+.chip.shield svg{width:14px;height:14px}
+.chip.shield b{color:#fff}
+.quake{position:absolute;left:50%;top:48%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:6px solid rgba(255,60,80,.9);pointer-events:none;z-index:3;animation:quake 1s ease-out forwards}
+.minion{position:absolute;width:92px;height:92px;z-index:5;cursor:pointer;touch-action:manipulation;filter:drop-shadow(0 6px 8px rgba(0,0,0,.6));animation:minIn .45s cubic-bezier(.2,1.6,.4,1) both}
+.minion > div{width:100%;height:100%;animation:wobble .7s ease-in-out infinite alternate}
+.minion svg{width:100%;height:100%;overflow:visible}
+.minion.poof{animation:poof .3s ease-in forwards;pointer-events:none}
+.minion.leave{animation:minOut .5s ease-in forwards;pointer-events:none}
+.splat{position:absolute;z-index:4;border-radius:50%;pointer-events:none;opacity:.92;animation:minIn .4s ease-out both}
+.problem{transition:transform .7s cubic-bezier(.5,1.5,.4,1)}
+.problem.flipped{transform:rotate(180deg)}
+.raidtag{position:absolute;left:50%;top:-14px;transform:translateX(-50%);z-index:6;font-family:var(--f-display);font-size:18px;padding:3px 14px;border-radius:999px;background:#5a1e2a;border:1px solid #ff6b6b;color:#ffd6dc;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.problem.flipped .raidtag{transform:translateX(-50%) rotate(180deg)}
+.runner{position:absolute;bottom:70px;width:74px;height:74px;z-index:2;pointer-events:none;animation:run 4s linear forwards}
+.runner > div{width:100%;height:100%;animation:hop .3s ease-in-out infinite alternate}
+.runner svg{width:100%;height:100%}
+@keyframes furyPulse{from{opacity:.55}to{opacity:1}}
+@keyframes quake{0%{transform:scale(1);opacity:1}100%{transform:scale(45);opacity:0;border-width:1px}}
+@keyframes minIn{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes minOut{to{transform:translateY(-40px) scale(.3);opacity:0}}
+@keyframes poof{0%{transform:scale(1)}40%{transform:scale(1.3);filter:brightness(2)}100%{transform:scale(0);opacity:0}}
+@keyframes wobble{from{transform:rotate(-7deg) translateY(0)}to{transform:rotate(7deg) translateY(-6px)}}
+@keyframes hop{from{transform:translateY(0)}to{transform:translateY(-14px)}}
+@keyframes run{from{left:-90px}to{left:calc(100% + 20px)}}
 
 /* ===== join / battle ===== */
 .rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;list-style:none;margin:0 0 18px;padding:0}
@@ -356,9 +387,11 @@ body.tv .board h2{font-size:34px}
     <main class="col">
       <section class="stage" id="stage" aria-label="보스">
         <div class="art idle" id="boss" aria-hidden="true"><div class="art-img" id="bossImg"></div></div>
+        <div class="furyfx" aria-hidden="true"></div>
         <div class="stage-top">
           <span class="chip" id="roundChip">대기 중</span>
           <span class="chip">공격대 <b id="peopleCount">0</b>명</span>
+          <span class="chip shield" id="shieldChip" hidden><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>분노 · 피해 절반 <b id="shieldLeft">20</b>초</span>
           <span class="timer" id="timer">--:--</span>
         </div>
         <div class="arena">
@@ -380,9 +413,9 @@ body.tv .board h2{font-size:34px}
         <div id="vJoin">
           <p class="eyebrow">규칙</p>
           <ul class="rules">
-            <li><b>정답 = 공격!</b>맞힐 때마다 보스에게 피해를 줘요. <span class="hl">10%</span> 확률로 치명타 ×2, <span class="hl">3연속</span> 정답이면 +2</li>
+            <li><b>정답 = 공격!</b>맞힐 때마다 보스에게 피해를 줘요. 치명타(×2) 확률은 <span class="hl">15%</span>이고, 연속으로 맞힐수록 <span class="hl">최대 40%</span>까지 올라가요.</li>
             <li><b>틀리면 손해</b><span id="ruleWrong">보스가 체력을 <span class="hl">10</span> 회복하고, 나는 <span class="hl">5초</span> 동안 기절해요.</span></li>
-            <li><b>천천히, 정확하게</b>시간은 반 전체가 함께 써요. 종이에 풀고, 모르면 넘기기(벌칙 없음).</li>
+            <li><b>보스의 반격</b>보스가 화나면 <span class="hl">20초</span> 동안 피해가 절반! 최후의 분노 때는 모두 <span class="hl">3초</span> 기절. 중간에 부하들이 나타나 화면을 가리거나 뒤집어요.</li>
           </ul>
           <p class="eyebrow">이름</p>
           <div class="namebox">
@@ -425,6 +458,7 @@ body.tv .board h2{font-size:34px}
             <span>맞힘 <b id="meOk">0</b></span>
             <span>틀림 <b id="meNo">0</b></span>
             <span>연속 <b id="meStreak">0</b></span>
+            <span>치명타 <b id="meCrit">15%</b></span>
           </div>
           <div class="problem" id="problem">
             <span class="pchip" id="pchip">소수 ÷ 소수</span>
@@ -440,13 +474,13 @@ body.tv .board h2{font-size:34px}
             </form>
             <div class="hint">
               <span><i style="background:var(--gold)"></i>정답 → 공격</span>
-              <span><i style="background:#ff7a3d"></i>치명타 10%</span>
+              <span><i style="background:#ff7a3d"></i>치명타 <b id="hintCrit">15%</b></span>
               <span id="hintWrong"><i style="background:var(--heal)"></i>오답 → 보스 +10 회복 · 5초 기절</span>
             </div>
             <div class="cover stun" id="stun" hidden>
               <div>
                 <span class="stars" aria-hidden="true">✦ ✦ ✦</span>
-                <h3>기절!</h3>
+                <h3 id="stunTitle">기절!</h3>
                 <div class="left" id="stunLeft">5</div>
                 <p id="stunMsg">보스가 체력을 회복했어요. 다음 문제는 꼭 적어서 풀어요.</p>
                 <div class="ans" id="stunAns"></div>
@@ -556,7 +590,13 @@ const firebaseConfig = {
 
 /* ===== 게임 설정 ===== */
 const DMG = { easy:[5,8], normal:[7,11], normal2:[8,12], hard:[9,14] }; // 난이도별 공격력
-const CRIT_RATE = 0.10;      // 치명타 확률 (공격력 ×2)
+const CRIT_RATE = 0.15;        // 기본 치명타 확률 (공격력 ×2)
+const CRIT_PER_STREAK = 0.025; // 연속 정답 1번마다 치명타 확률 +2.5%
+const CRIT_MAX = 0.40;         // 치명타 확률 최대
+const SKIP_STUN = 3;           // 넘기기 기절 시간(초). 선생님이 기절 '없음'을 고르면 0
+const RAGE_HALF_SECONDS = 20;  // 보스가 화나면(체력 50%) 피해가 절반이 되는 시간
+const FINAL_RAGE_STUN = 3;     // 최후의 분노(체력 20%) 때 모두 기절하는 시간
+const MINION_SECONDS = 6;      // 부하 습격 시간
 const STREAK_BONUS = 2;      // 3연속 정답부터 추가 공격력
 const HEAL_ON_WRONG = 10;    // 틀렸을 때 보스 회복량 (Firebase 규칙과 같아야 해요)
 const STUN_SECONDS = 5;      // 틀렸을 때 기절 시간
@@ -731,6 +771,11 @@ FX.resize(); addEventListener("resize",()=>FX.resize());
 const R=(a,b)=>a+Math.random()*(b-a);
 function centerOf(el,fy){ const r=el.getBoundingClientRect(); return {x:r.left+r.width/2,y:r.top+r.height*(fy==null?.5:fy)}; }
 function curBoss(){ const r=S.raid; return BOSSES[r?((r.boss%BOSSES.length)+BOSSES.length)%BOSSES.length:0]; }
+function burstRage(color){
+  if(REDUCED) return; const p=bossCenter();
+  for(let i=0;i<60;i++){ const a=R(0,Math.PI*2), sp=R(300,900); FX.add({kind:"spark",x:p.x,y:p.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,g:200,drag:.97,size:R(2,5),color:i%3?color:"#ffffff",life:R(.6,1.2),max:1.2}); }
+  for(let i=0;i<12;i++) FX.add({kind:"smoke",x:p.x+R(-80,80),y:p.y+R(-40,80),vx:R(-60,60),vy:R(-80,-20),drag:.97,size:R(16,30),color:i%2?"#3a0a14":"#5a1020",life:R(.8,1.4),max:1.4});
+}
 function bossCenter(){ const r=$("stage").getBoundingClientRect(), f=curBoss().focus||[.6,.5]; return {x:r.left+r.width*f[0],y:r.top+r.height*f[1]}; }
 function bossFx(cls){ const el=$("boss"); ["hit","crit","heal","appear"].forEach(c=>el.classList.remove(c)); void el.offsetWidth; el.classList.add(cls); }
 function burstHit(crit,color){
@@ -882,12 +927,15 @@ const healAmt=()=>S.raid&&Number.isInteger(S.raid.heal)?S.raid.heal:HEAL_ON_WRON
 const stunSec=()=>S.raid&&Number.isInteger(S.raid.stun)?S.raid.stun:STUN_SECONDS;
 const lockMode=()=>S.raid&&S.raid.status==="live"&&S.raid.lock&&S.raid.lock!=="free"&&DMG[S.raid.lock]?S.raid.lock:null;
 const curMode=()=>lockMode()||me.mode;
+const skipStun=()=>stunSec()>0?Math.min(SKIP_STUN,stunSec()):0;
+const critChance=()=>Math.min(CRIT_MAX,CRIT_RATE+CRIT_PER_STREAK*(me.streak||0));
 function renderRules(){
   const hl=healAmt(), st=stunSec();
-  const parts=[]; if(hl>0) parts.push("보스가 체력을 <span class=\"hl\">"+hl+"</span> 회복하고"); if(st>0) parts.push("나는 <span class=\"hl\">"+st+"초</span> 동안 기절해요");
-  $("ruleWrong").innerHTML=parts.length?parts.join(", ")+(st>0?".":" 가요."):"벌칙은 없지만, 정확하게 풀수록 우리 반이 유리해요.";
-  const hp=[]; if(hl>0) hp.push("보스 +"+hl+" 회복"); if(st>0) hp.push(st+"초 기절");
-  $("hintWrong").innerHTML='<i style="background:var(--heal)"></i>오답 → '+(hp.length?hp.join(" · "):"벌칙 없음");
+  const ss=skipStun();
+  const say=(s)=>{ const a=[]; if(hl>0) a.push("보스 <span class=\"hl\">+"+hl+"</span> 회복"); if(s>0) a.push("<span class=\"hl\">"+s+"초</span> 기절"); return a.length?a.join(" · "):"벌칙 없음"; };
+  $("ruleWrong").innerHTML="틀리면: "+say(st)+"<br>넘기면: "+say(ss);
+  const t=(s)=>{ const a=[]; if(hl>0) a.push("보스 +"+hl); if(s>0) a.push(s+"초 기절"); return a.length?a.join(" · "):"벌칙 없음"; };
+  $("hintWrong").innerHTML='<i style="background:var(--heal)"></i>오답 → '+t(st)+' · 넘기기 → '+t(ss);
   const L=lockMode(), fs=$("modes");
   fs.disabled=!!L; $("lockMsg").hidden=!L;
   if(L){ $("lockMsg").textContent="선생님이 이번 레이드 난이도를 '"+MODE_LABEL[L]+"'(으)로 정했어요."; const r=document.querySelector('input[name="mode"][value="'+L+'"]'); if(r) r.checked=true; }
@@ -926,8 +974,34 @@ function renderBoss(){
   $("hpbar").className="hpbar"+(pct<=20?" low":pct<=50?" mid":"");
   const rage=pct<=20?2:pct<=50?1:0;
   $("boss").classList.toggle("rage1",rage===1); $("boss").classList.toggle("rage2",rage===2); $("stage").classList.toggle("rage2",rage===2);
-  if(rage>S.rage && S.phase==="live" && hp>0){ Sfx.roar(); restart($("stage"),"shake"); bannerText(rage===2?"보스가 분노했어요!":"보스가 화가 났어요!"); }
+  if(S.rageSynced===r.round){
+    if(S.phase==="live" && hp>0){
+      const done=S.rageMax||0;
+      if(rage>=1 && done<1) onRage1();
+      if(rage>=2 && done<2) setTimeout(onRage2, done<1?1600:0);
+      S.rageMax=Math.max(done,rage);
+    }
+  }else if(S.shardsReady){ S.rageSynced=r.round; S.rageMax=rage; }
   S.rage=rage;
+}
+function onRage1(){
+  S.halfUntil=Date.now()+RAGE_HALF_SECONDS*1000;
+  Sfx.roar(); restart($("stage"),"shake"); bannerText("보스가 화났어요! 피해 절반");
+  feed("sys","보스가 화났어요! "+RAGE_HALF_SECONDS+"초 동안 피해가 절반이에요");
+  quakeRing(); burstRage("#ff3d4f");
+}
+function onRage2(){
+  if(S.phase!=="live") return;
+  Sfx.roar(); setTimeout(()=>Sfx.roar(),350); restart($("stage"),"shake");
+  bannerText("최후의 분노!"); feed("sys","최후의 분노! 모두 "+FINAL_RAGE_STUN+"초 동안 기절");
+  quakeRing(); setTimeout(quakeRing,250); burstRage("#ff1a3a"); burstRage("#ffb070");
+  if(me.joined && !isTV()) stunMe(FINAL_RAGE_STUN,"보스의 포효!","최후의 분노! 모두 "+FINAL_RAGE_STUN+"초 동안 기절했어요. 조금만 더 힘내요!",null);
+}
+function quakeRing(){ if(REDUCED) return; const q=document.createElement("div"); q.className="quake"; $("stage").appendChild(q); setTimeout(()=>q.remove(),1050); }
+function renderFury(){
+  const left=(S.halfUntil||0)-Date.now(), on=S.phase==="live"&&left>0;
+  $("stage").classList.toggle("fury",on); $("shieldChip").hidden=!on;
+  if(on) $("shieldLeft").textContent=Math.ceil(left/1000);
 }
 function bannerText(t){ const b=document.createElement("div"); b.className="banner"; b.textContent=t; $("stage").appendChild(b); setTimeout(()=>b.remove(),2050); }
 function fmtTime(ms){ ms=Math.max(0,ms); const s=Math.ceil(ms/1000); return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"); }
@@ -1027,7 +1101,7 @@ function syncRound(){
     renderMe();
   }
 }
-function renderMe(){ $("meName").textContent=me.name; $("meDmg").textContent=me.damage; $("meOk").textContent=me.correct; $("meNo").textContent=me.wrong; $("meStreak").textContent=me.streak; }
+function renderMe(){ const cc=Math.round(critChance()*100)+"%"; $("meCrit").textContent=cc; $("hintCrit").textContent=cc; $("meName").textContent=me.name; $("meDmg").textContent=me.damage; $("meOk").textContent=me.correct; $("meNo").textContent=me.wrong; $("meStreak").textContent=me.streak; }
 function renderBattle(){
   if(!me.joined) return;
   const live=S.phase==="live";
@@ -1058,6 +1132,13 @@ function savePlayer(){
   S.players[id]=Object.assign({id},body);
   me.saving=me.saving.then(()=>setDoc(doc(S.db,"raidPlayers",id),body)).catch(e=>console.warn("기록 저장 실패",e));
 }
+function stunMe(sec,title,msg,p){
+  me.stunUntil=Date.now()+sec*1000;
+  $("stunTitle").textContent=title; $("stunMsg").textContent=msg; $("stunLeft").textContent=sec;
+  $("stunAns").innerHTML="";
+  if(p){ $("stunAns").append(p.a+" ÷ "+p.b+" = "); const b=document.createElement("b"); b.textContent=p.ansText; $("stunAns").appendChild(b); }
+  $("stun").hidden=false;
+}
 function submit(e){
   e.preventDefault();
   if(S.phase!=="live"||me.lock||!me.cur||Date.now()<me.stunUntil) return;
@@ -1065,12 +1146,13 @@ function submit(e){
   if(v===null){ restart(inp,"bad"); return; }
   const p=me.cur; me.lock=true; me.cur=null;
   if(v===p.ans4){
-    const [lo,hi]=DMG[me.curMode||curMode()]; let dmg=ri(lo,hi); const crit=Math.random()<CRIT_RATE; if(crit) dmg*=2;
+    const [lo,hi]=DMG[me.curMode||curMode()]; let dmg=ri(lo,hi); const crit=Math.random()<critChance(); if(crit) dmg*=2;
     me.streak++; if(me.streak>=3) dmg+=STREAK_BONUS;
+    const halved=Date.now()<(S.halfUntil||0); if(halved) dmg=Math.max(1,Math.ceil(dmg/2));
     me.damage+=dmg; me.correct++;
     if(S.db) updateDoc(doc(S.db,"raid","state","shards",myShard()),{damage:increment(dmg)}).catch(err=>console.warn("공격 실패",err));
-    S.shards[myShard()]=Object.assign({},S.shards[myShard()]||{round:S.raid.round,damage:0,heal:0}); S.shards[myShard()].damage=(S.shards[myShard()].damage||0)+dmg; S.selfDmg=(S.selfDmg||0)+dmg;
-    floatNum("−"+dmg,crit?"crit":"mine",crit?"치명타!":(me.streak>=3?me.streak+"연속!":null));
+    if(!S.db){ S.shards[myShard()]=Object.assign({},S.shards[myShard()]||{round:S.raid.round,damage:0,heal:0}); S.shards[myShard()].damage=(S.shards[myShard()].damage||0)+dmg; }
+    floatNum("−"+dmg,crit?"crit":"mine",crit?(halved?"치명타! (절반)":"치명타!"):(halved?"분노 · 절반":(me.streak>=3?me.streak+"연속!":null)));
     bossFx(crit?"crit":"hit"); burstHit(crit,BOSSES[S.raid.boss%BOSSES.length].c); Sfx.hit(crit);
     if(crit) restart($("stage"),"shake");
     savePlayer(); renderMe(); renderBoss(); checkPhase();
@@ -1084,18 +1166,18 @@ function submit(e){
     inp.className="bad"; restart($("problem"),"wrong"); Sfx.stun();
     const st=stunSec();
     if(st<=0){ const m=document.createElement("div"); m.className="skipmsg"; m.textContent="정답은 "+p.ansText; $("problem").appendChild(m); setTimeout(()=>m.remove(),1000); setTimeout(()=>{ if(S.phase==="live") nextProblem(); },1000); return; }
-    me.stunUntil=Date.now()+st*1000;
-    $("stunMsg").textContent=(hl>0?"보스가 체력을 회복했어요. ":"")+"다음 문제는 꼭 적어서 풀어요.";
-    $("stunLeft").textContent=st;
-    $("stunAns").innerHTML=""; $("stunAns").append(p.a+" ÷ "+p.b+" = "); const b=document.createElement("b"); b.textContent=p.ansText; $("stunAns").appendChild(b);
-    $("stun").hidden=false;
+    stunMe(st,"기절!",(hl>0?"보스가 체력을 회복했어요. ":"")+"다음 문제는 꼭 적어서 풀어요.",p);
   }
 }
 function skip(){
   if(S.phase!=="live"||me.lock||!me.cur||Date.now()<me.stunUntil) return;
-  me.lock=true; me.cur=null; me.streak=0; renderMe();
-  const m=document.createElement("div"); m.className="skipmsg"; m.textContent="넘겼어요"; $("problem").appendChild(m); setTimeout(()=>m.remove(),1000);
-  setTimeout(()=>{ if(S.phase==="live") nextProblem(); },600);
+  const p=me.cur; me.lock=true; me.cur=null; me.streak=0; renderMe();
+  const hp=hpNow(), hl=healAmt();
+  if(S.db && hl>0 && hp>0 && hp<S.raid.maxHp){ updateDoc(doc(S.db,"raid","state","shards",myShard()),{heal:increment(hl)}).catch(err=>console.warn("회복 기록 실패",err)); floatNum("+"+hl,"heal"); bossFx("heal"); burstHeal(); }
+  const st=skipStun();
+  if(st<=0){ const m=document.createElement("div"); m.className="skipmsg"; m.textContent="넘겼어요"; $("problem").appendChild(m); setTimeout(()=>m.remove(),1000); setTimeout(()=>{ if(S.phase==="live") nextProblem(); },600); return; }
+  Sfx.stun();
+  stunMe(st,"넘기기!",(hl>0?"보스가 체력을 "+hl+" 회복했어요. ":"")+"잠깐 쉬었다가 다음 문제에 도전해요.",p);
 }
 function join(){
   Sfx.init();
@@ -1110,6 +1192,58 @@ function join(){
   syncRound(); renderMe(); renderRules(); renderBattle(); renderBoard();
 }
 function leave(){ me.joined=false; me.cur=null; $("vBattle").hidden=true; $("vJoin").hidden=false; $("stun").hidden=true; }
+
+/* ================= 부하 습격 ================= */
+function minionSVG(bi){
+  if(bi===1) return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 40 L34 18 L66 16 L84 36 L88 70 L70 88 L30 88 L12 68Z" fill="#8f877d" stroke="#2a2622" stroke-width="4" stroke-linejoin="round"/><path d="M30 30 l10 8 M66 28 l-6 10 M24 70 l12 -4" stroke="#4a443d" stroke-width="3"/><rect x="30" y="44" width="14" height="8" rx="2" fill="#ffb84d"/><rect x="56" y="44" width="14" height="8" rx="2" fill="#ffb84d"/><path d="M36 70 h28" stroke="#2a2622" stroke-width="4" stroke-linecap="round"/></svg>`;
+  if(bi===2) return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M8 46 C14 30 26 28 34 40 L30 52Z M92 46 C86 30 74 28 66 40 L70 52Z" fill="#5b2a8f" stroke="#2a0e4a" stroke-width="3"/><path d="M32 26 L28 6 L42 20Z M68 26 L72 6 L58 20Z" fill="#efe4ff" stroke="#3a2357" stroke-width="2"/><circle cx="50" cy="54" r="30" fill="#2a1048" stroke="#8a4dff" stroke-width="3"/><path d="M36 48 l12 4 -11 3Z M64 48 l-12 4 11 3Z" fill="#ff3d5a"/><path d="M38 68 q12 9 24 0" stroke="#ff8a9a" stroke-width="3" fill="none"/><path d="M42 69 l3 5 3 -4 M52 70 l3 5 3 -5" fill="#fff"/></svg>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M12 84 C6 56 22 26 50 24 C78 26 94 56 88 84 C70 92 30 92 12 84Z" fill="#7fe35a" stroke="#2d7a1e" stroke-width="4"/><ellipse cx="34" cy="44" rx="9" ry="5" fill="#fff" opacity=".6" transform="rotate(-25 34 44)"/><circle cx="38" cy="60" r="7" fill="#fff"/><circle cx="62" cy="60" r="7" fill="#fff"/><circle cx="40" cy="62" r="3.5" fill="#111"/><circle cx="60" cy="62" r="3.5" fill="#111"/><path d="M42 74 q8 6 16 0" stroke="#1d4d12" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="28" cy="70" r="4" fill="#ff9ab0" opacity=".7"/><circle cx="72" cy="70" r="4" fill="#ff9ab0" opacity=".7"/></svg>`;
+}
+function rng(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+function minionPlan(){
+  const r=S.raid; if(!r||!r.startedAt||!r.startedAt.toMillis) return [];
+  const st=r.startedAt.toMillis(), dur=r.minutes*60000;
+  const rand=rng(r.round*7919+Math.floor(st/1000));
+  const n=r.minutes>=8?2:1, first=rand()<.5?"cover":"flip";
+  const ev=[];
+  if(n===1) ev.push({at:st+dur*(.35+rand()*.3),type:first});
+  else { ev.push({at:st+dur*(.2+rand()*.2),type:first}); ev.push({at:st+dur*(.58+rand()*.22),type:first==="cover"?"flip":"cover"}); }
+  return ev;
+}
+function checkMinions(){
+  if(S.phase!=="live"||!S.raid) return;
+  const now=Date.now(), plan=minionPlan();
+  S.minionDone=S.minionDone||{};
+  plan.forEach((e,i)=>{
+    const key=S.raid.round+"-"+i; if(S.minionDone[key]) return;
+    if(now>=e.at){ S.minionDone[key]=1; if(now<e.at+MINION_SECONDS*1000) minionAttack(e.type, e.at+MINION_SECONDS*1000-now); }
+  });
+}
+function runners(bi){
+  for(let i=0;i<5;i++){ const d=document.createElement("div"); d.className="runner"; d.style.animationDelay=(i*.35)+"s"; d.style.bottom=(60+Math.random()*90)+"px";
+    d.innerHTML="<div>"+minionSVG(bi)+"</div>"; $("stage").appendChild(d); setTimeout(()=>d.remove(),4000+i*350+100); }
+}
+function minionAttack(type,ms){
+  const bi=((S.raid.boss%BOSSES.length)+BOSSES.length)%BOSSES.length;
+  Sfx.roar(); bannerText(type==="flip"?"부하들이 화면을 뒤집었어요!":"부하들이 화면을 가렸어요!");
+  feed("sys",type==="flip"?"부하 습격! 화면이 뒤집혀요":"부하 습격! 화면을 가려요"); runners(bi);
+  if(!me.joined||isTV()) return;
+  const box=$("problem"), tag=document.createElement("div"); tag.className="raidtag";
+  const until=Date.now()+ms; const tick=()=>{ const l=Math.ceil((until-Date.now())/1000); tag.textContent=(type==="flip"?"뒤집힘 ":"부하 습격 ")+Math.max(0,l)+"초"; };
+  tick(); box.appendChild(tag); const iv=setInterval(tick,250);
+  const cleanup=[];
+  if(type==="flip"){ box.classList.add("flipped"); cleanup.push(()=>box.classList.remove("flipped")); }
+  else{
+    const cols=["#7fe35a","#8f877d","#8a4dff"], col=cols[bi];
+    for(let i=0;i<4;i++){ const s=document.createElement("div"); s.className="splat"; const w=90+Math.random()*90; s.style.cssText=`width:${w}px;height:${w*.8}px;left:${10+Math.random()*70}%;top:${15+Math.random()*55}%;background:radial-gradient(circle at 40% 40%,${col},color-mix(in srgb,${col} 60%,#000) 70%,transparent 72%);transform:translate(-50%,-50%)`; box.appendChild(s); cleanup.push(()=>s.remove()); }
+    const spots=[[18,30],[50,35],[80,30],[32,68],[68,68],[50,60]];
+    spots.forEach(([x,y],i)=>{ const m=document.createElement("div"); m.className="minion"; m.style.left=`calc(${x}% - 46px)`; m.style.top=`calc(${y}% - 46px)`; m.style.animationDelay=(i*.08)+"s";
+      m.innerHTML="<div>"+minionSVG(bi)+"</div>"; m.title="눌러서 쫓아내기";
+      m.addEventListener("pointerdown",ev=>{ ev.preventDefault(); m.classList.add("poof"); Sfx.otherHit(); setTimeout(()=>m.remove(),320); });
+      box.appendChild(m); cleanup.push(()=>{ if(m.isConnected){ m.classList.add("leave"); setTimeout(()=>m.remove(),520); } }); });
+  }
+  setTimeout(()=>{ clearInterval(iv); tag.remove(); cleanup.forEach(f=>f()); },ms);
+}
 
 /* ================= 실시간 연결 ================= */
 function subscribePlayers(round){
@@ -1143,7 +1277,7 @@ function initShared(){
     },err=>{ console.warn("레이드 정보 실패",err); S.ready=true; checkPhase(); });
     onSnapshot(collection(S.db,"raid","state","shards"),snap=>{
       const before=totals();
-      snap.forEach(d=>{ S.shards[d.id]=d.data(); });
+      snap.forEach(d=>{ S.shards[d.id]=d.data(); }); S.shardsReady=true;
       S.selfDmg=0; S.selfHeal=0;
       const after=totals();
       if(S.phase==="live" && S.prevTotals){
@@ -1222,12 +1356,12 @@ $("tStart").addEventListener("click",teacherStart);
 $("tStop").addEventListener("click",teacherStop);
 
 setInterval(()=>{
-  checkPhase(); renderTimer();
+  checkPhase(); renderTimer(); renderFury(); checkMinions();
   if(!$("tModal").hidden) renderTeacherLive();
   if(me.joined && S.phase==="live" && me.stunUntil){
     const left=me.stunUntil-Date.now();
     if(left>0){ $("stunLeft").textContent=Math.ceil(left/1000); }
-    else { me.stunUntil=0; $("stun").hidden=true; nextProblem(); }
+    else { me.stunUntil=0; $("stun").hidden=true; if(!me.cur) nextProblem(); else { me.lock=false; if(!isTV()) $("ans").focus({preventScroll:true}); } }
   }
 },200);
 
